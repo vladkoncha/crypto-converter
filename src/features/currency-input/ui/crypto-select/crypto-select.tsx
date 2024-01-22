@@ -2,7 +2,7 @@
 
 import { UpDownIcon } from '@chakra-ui/icons';
 import {
-  Box,
+  Flex,
   FormControl,
   Menu,
   MenuButton,
@@ -33,13 +33,13 @@ export const CryptoSelect = ({
           disabled={isLoading}
           cursor={isLoading ? 'not-allowed' : 'pointer'}
         >
-          <Box display="flex" flexDirection="row" alignItems="center">
+          <Flex direction="row" alignItems="center">
             <IconButton
               label={OPTIONS[ticker].label}
               icon={OPTIONS[ticker].icon}
             />
             <UpDownIcon margin="0.5rem 0.5rem 0.5rem auto" />
-          </Box>
+          </Flex>
         </MenuButton>
         <MenuList minW="3rem" width={MENU_WIDTH}>
           {Object.entries(OPTIONS).map(([ticker, option]) => (

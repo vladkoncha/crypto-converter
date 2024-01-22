@@ -9,5 +9,8 @@ export interface Currency {
  * Exchange rates to USD
  */
 export type CurrenciesRate = {
-  [key in Currency['ticker']]: number;
+  [key in Currency['ticker']]: {
+    price: number;
+    percentChange: number;
+  };
 };

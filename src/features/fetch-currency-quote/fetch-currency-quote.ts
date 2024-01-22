@@ -19,8 +19,17 @@ export async function fetchCurrencyQuote(): Promise<CurrenciesRate> {
   }
 
   return {
-    btc: data?.data?.['1']?.quote?.USD?.price ?? 40000,
-    eth: data?.data?.['1027']?.quote?.USD?.price ?? 2500,
-    usdt: data?.data?.['825']?.quote?.USD?.price ?? 1,
+    btc: {
+      price: data?.data?.['1']?.quote?.USD?.price ?? 40000,
+      percentChange: data?.data?.['1']?.quote?.USD?.percent_change_24h,
+    },
+    eth: {
+      price: data?.data?.['1027']?.quote?.USD?.price ?? 2500,
+      percentChange: data?.data?.['1027']?.quote?.USD?.percent_change_24h,
+    },
+    usdt: {
+      price: data?.data?.['825']?.quote?.USD?.price ?? 1,
+      percentChange: data?.data?.['825']?.quote?.USD?.percent_change_24h,
+    },
   };
 }

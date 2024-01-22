@@ -6,4 +6,5 @@ export interface CurrencyInputProps {
   ticker: Ticker;
   setTicker: (ticker: Ticker) => void;
   isLoading: boolean;
+  percentChange?: number;
 }

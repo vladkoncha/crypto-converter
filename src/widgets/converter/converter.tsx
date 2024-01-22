@@ -1,14 +1,15 @@
 'use client';
 
-import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
+import { ArrowLeftIcon, ArrowRightIcon, RepeatIcon } from '@chakra-ui/icons';
 import {
   Alert,
   AlertDescription,
   AlertIcon,
   AlertTitle,
   Box,
-  Button,
   Flex,
+  IconButton,
+  useMediaQuery,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 
@@ -17,9 +18,9 @@ import { fetchCurrencyQuote } from '@/src/features/fetch-currency-quote';
 import { TICKERS } from '@/src/shared/constants';
 import { CurrenciesRate, Ticker } from '@/src/shared/models';
 
-import { convertCurrency } from './convert-currency';
-import { CONVERTER_CONTAINER_SX } from './sx';
+import { CONVERTER_CONTAINER_MOBILE_SX, CONVERTER_CONTAINER_SX } from './sx';
 import { ConverterProps, CurrenciesState, CurrencySide } from './types';
+import { convertCurrency } from './utils/convert-currency';
 
 const initialCurrencyState: CurrenciesState = {
   [CurrencySide.Left]: {
@@ -33,6 +34,11 @@ const initialCurrencyState: CurrenciesState = {
 };
 
 export const Converter = ({ initialRates }: ConverterProps) => {
+  const [isLargerThan900] = useMediaQuery('(min-width: 900px)', {
+    ssr: true,
+    fallback: true,
+  });
+
   const [error, setError] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [currencies, setCurrencies] = useState(initialCurrencyState);
@@ -95,8 +101,8 @@ export const Converter = ({ initialRates }: ConverterProps) => {
 
     const convertedValue = convertCurrency(
       numValue,
-      rates[currencies[side].ticker],
-      rates[currencies[otherSide].ticker]
+      rates[currencies[side].ticker].price,
+      rates[currencies[otherSide].ticker].price
     );
 
     setCurrencies({
@@ -118,8 +124,8 @@ export const Converter = ({ initialRates }: ConverterProps) => {
     if (side === CurrencySide.Left) {
       const rightValue = convertCurrency(
         numValue || 0,
-        currenciesRate[ticker],
-        currenciesRate[currencies[CurrencySide.Right].ticker]
+        currenciesRate[ticker].price,
+        currenciesRate[currencies[CurrencySide.Right].ticker].price
       );
 
       setCurrencies({
@@ -135,8 +141,8 @@ export const Converter = ({ initialRates }: ConverterProps) => {
     } else {
       const rightValue = convertCurrency(
         numValue || 0,
-        currenciesRate[currencies[CurrencySide.Left].ticker],
-        currenciesRate[ticker]
+        currenciesRate[currencies[CurrencySide.Left].ticker].price,
+        currenciesRate[ticker].price
       );
 
       setCurrencies({
@@ -149,9 +155,13 @@ export const Converter = ({ initialRates }: ConverterProps) => {
     }
   };
 
+  const layoutSx = isLargerThan900
+    ? CONVERTER_CONTAINER_SX
+    : CONVERTER_CONTAINER_MOBILE_SX;
+
   return (
     <Flex direction="column" justify="center" align="center">
-      <Box {...CONVERTER_CONTAINER_SX}>
+      <Box {...layoutSx}>
         <CurrencyInput
           value={currencies[CurrencySide.Left].value}
           onChange={(value) =>
@@ -160,13 +170,18 @@ export const Converter = ({ initialRates }: ConverterProps) => {
           ticker={currencies[CurrencySide.Left].ticker}
           setTicker={(ticker) => handleTickerChange(CurrencySide.Left, ticker)}
           isLoading={isRefreshing}
+          percentChange={
+            currenciesRate[currencies[CurrencySide.Left].ticker].percentChange
+          }
         />
-
-        <Box display="flex" flexDirection="row" gap="0.25rem">
+        <Flex
+          direction="row"
+          gap="0.25rem"
+          marginTop={isLargerThan900 ? '1.5rem' : '0'}
+        >
           <ArrowLeftIcon />
           <ArrowRightIcon />
-        </Box>
-
+        </Flex>
         <CurrencyInput
           value={currencies[CurrencySide.Right].value}
           onChange={(value) =>
@@ -175,17 +190,19 @@ export const Converter = ({ initialRates }: ConverterProps) => {
           ticker={currencies[CurrencySide.Right].ticker}
           setTicker={(ticker) => handleTickerChange(CurrencySide.Right, ticker)}
           isLoading={isRefreshing}
+          percentChange={
+            currenciesRate[currencies[CurrencySide.Right].ticker].percentChange
+          }
         />
-
-        <Button
+        <IconButton
           disabled={isRefreshing}
           onClick={handleRefresh}
           colorScheme="gray"
           variant="outline"
           cursor={isRefreshing ? 'not-allowed' : 'pointer'}
-        >
-          Обновить
-        </Button>
+          aria-label="Обновить"
+          icon={<RepeatIcon />}
+        />
       </Box>
 
       {error && (
