@@ -1,4 +1,4 @@
-import { Main } from '@/src/pages/main';
+import { Main } from '@/src/_pages/main';
 
 export default function Home() {
   return (
