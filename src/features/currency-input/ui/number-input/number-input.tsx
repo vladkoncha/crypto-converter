@@ -2,7 +2,6 @@
 
 import {
   FormControl,
-  FormErrorMessage,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput as ChakraNumberInput,
@@ -10,7 +9,11 @@ import {
   NumberInputStepper,
 } from '@chakra-ui/react';
 
-export const NumberInput = ({ value, onChange }: NumberInputProps) => {
+export const NumberInput = ({
+  value,
+  onChange,
+  isLoading,
+}: NumberInputProps) => {
   const parse = (input: string) => {
     let dotOrCommaEncountered = false;
     const sanitizedInput = input.replace(/[.,]/g, (match) => {
@@ -29,11 +32,10 @@ export const NumberInput = ({ value, onChange }: NumberInputProps) => {
     onChange(parse(value));
   };
 
-  const isError = false;
-
   return (
-    <FormControl isInvalid={isError}>
+    <FormControl>
       <ChakraNumberInput
+        isDisabled={isLoading}
         min={0}
         clampValueOnBlur={false}
         value={value}
@@ -46,11 +48,6 @@ export const NumberInput = ({ value, onChange }: NumberInputProps) => {
           <NumberDecrementStepper />
         </NumberInputStepper>
       </ChakraNumberInput>
-      {isError && (
-        <FormErrorMessage>
-          Введите корректное числовое значение
-        </FormErrorMessage>
-      )}
     </FormControl>
   );
 };

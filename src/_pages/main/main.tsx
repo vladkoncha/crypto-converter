@@ -1,8 +1,11 @@
 import { Box } from '@chakra-ui/react';
 
+import { fetchCurrencyQuote } from '@/src/features/fetch-currency-quote';
 import { Converter } from '@/src/widgets/converter';
 
-export const Main = () => {
+export const Main = async () => {
+  const rates = await fetchCurrencyQuote();
+
   return (
     <Box
       height="100vh"
@@ -12,7 +15,7 @@ export const Main = () => {
       justifyContent="center"
       backgroundColor="gray.100"
     >
-      <Converter />
+      <Converter initialRates={rates} />
     </Box>
   );
 };

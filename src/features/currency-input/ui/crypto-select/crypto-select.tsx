@@ -16,7 +16,11 @@ import { Ticker } from '@/src/shared/models';
 import { MENU_WIDTH, OPTIONS } from './constants';
 import { CryptoSelectProps } from './type';
 
-export const CryptoSelect = ({ ticker, setTicker }: CryptoSelectProps) => {
+export const CryptoSelect = ({
+  ticker,
+  setTicker,
+  isLoading,
+}: CryptoSelectProps) => {
   return (
     <FormControl width="unset">
       <Menu closeOnSelect={true} matchWidth={false}>
@@ -26,6 +30,8 @@ export const CryptoSelect = ({ ticker, setTicker }: CryptoSelectProps) => {
           borderStyle="solid"
           borderRadius="md"
           width={MENU_WIDTH}
+          disabled={isLoading}
+          cursor={isLoading ? 'not-allowed' : 'pointer'}
         >
           <Box display="flex" flexDirection="row" alignItems="center">
             <IconButton

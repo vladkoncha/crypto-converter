@@ -1,7 +1,9 @@
 import './globals.css';
 
+import { Spinner } from '@chakra-ui/react';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { Suspense } from 'react';
 
 import { Providers } from '@/src/app/providers';
 
@@ -20,7 +22,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>{children}</Providers>
+        <Suspense fallback={<Spinner />}>
+          <Providers>{children}</Providers>
+        </Suspense>
       </body>
     </html>
   );

@@ -1,16 +1,4 @@
-import { Ticker } from '@/src/shared/models';
-
-interface Currency {
-  ticker: Ticker;
-  value: string;
-}
-
-/**
- * Exchange rates to USD
- */
-export type CurrenciesRate = {
-  [key in Currency['ticker']]: number;
-};
+import { CurrenciesRate, Currency } from '@/src/shared/models';
 
 export enum CurrencySide {
   Left = 'Left',
@@ -20,4 +8,8 @@ export enum CurrencySide {
 export interface CurrenciesState {
   [CurrencySide.Left]: Currency;
   [CurrencySide.Right]: Currency;
+}
+
+export interface ConverterProps {
+  initialRates: CurrenciesRate;
 }

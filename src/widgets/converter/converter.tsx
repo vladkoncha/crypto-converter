@@ -1,17 +1,25 @@
 'use client';
 
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
-import { Box } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Box,
+  Button,
+  Flex,
+} from '@chakra-ui/react';
+import { useState } from 'react';
 
 import { CurrencyInput } from '@/src/features/currency-input';
+import { fetchCurrencyQuote } from '@/src/features/fetch-currency-quote';
 import { TICKERS } from '@/src/shared/constants';
-import { Ticker } from '@/src/shared/models';
+import { CurrenciesRate, Ticker } from '@/src/shared/models';
 
-import { fetchCurrencyQuote } from './actions/fetch-currency-quote';
 import { convertCurrency } from './convert-currency';
 import { CONVERTER_CONTAINER_SX } from './sx';
-import { CurrenciesRate, CurrenciesState, CurrencySide } from './types';
+import { ConverterProps, CurrenciesState, CurrencySide } from './types';
 
 const initialCurrencyState: CurrenciesState = {
   [CurrencySide.Left]: {
@@ -24,28 +32,17 @@ const initialCurrencyState: CurrenciesState = {
   },
 };
 
-export const Converter = () => {
+export const Converter = ({ initialRates }: ConverterProps) => {
+  const [error, setError] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [currencies, setCurrencies] = useState(initialCurrencyState);
-  const [currenciesRate, setCurrenciesRate] = useState<CurrenciesRate>({
-    btc: 41000,
-    eth: 2500,
-    usdt: 1,
-  });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const rates = await fetchCurrencyQuote();
-
-        console.log(rates);
-        setCurrenciesRate(rates);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const [currenciesRate, setCurrenciesRate] = useState<CurrenciesRate>(
+    initialRates ?? {
+      btc: 41000,
+      eth: 2500,
+      usdt: 1,
+    }
+  );
 
   const resetValues = () => {
     setCurrencies({
@@ -60,7 +57,33 @@ export const Converter = () => {
     });
   };
 
-  const handleValueChange = (side: CurrencySide, value: string) => {
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    setError('');
+
+    try {
+      const rates = await fetchCurrencyQuote();
+      setCurrenciesRate(rates);
+      handleValueChange(
+        CurrencySide.Left,
+        currencies[CurrencySide.Left].value,
+        rates
+      );
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        console.error(e);
+        setError(e.message);
+      }
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  const handleValueChange = (
+    side: CurrencySide,
+    value: string,
+    rates: CurrenciesRate
+  ) => {
     const numValue = parseFloat(value);
     if (!Number.isFinite(numValue)) {
       resetValues();
@@ -72,8 +95,8 @@ export const Converter = () => {
 
     const convertedValue = convertCurrency(
       numValue,
-      currenciesRate[currencies[side].ticker],
-      currenciesRate[currencies[otherSide].ticker]
+      rates[currencies[side].ticker],
+      rates[currencies[otherSide].ticker]
     );
 
     setCurrencies({
@@ -90,11 +113,6 @@ export const Converter = () => {
   };
 
   const handleTickerChange = async (side: CurrencySide, ticker: Ticker) => {
-    // const rates = await fetchCurrencyQuote();
-
-    // console.log(rates);
-    // setCurrenciesRate(rates);
-
     const numValue = parseFloat(currencies[CurrencySide.Left].value);
 
     if (side === CurrencySide.Left) {
@@ -132,25 +150,51 @@ export const Converter = () => {
   };
 
   return (
-    <Box {...CONVERTER_CONTAINER_SX}>
-      <CurrencyInput
-        value={currencies[CurrencySide.Left].value}
-        onChange={(value) => handleValueChange(CurrencySide.Left, value)}
-        ticker={currencies[CurrencySide.Left].ticker}
-        setTicker={(ticker) => handleTickerChange(CurrencySide.Left, ticker)}
-      />
+    <Flex direction="column" justify="center" align="center">
+      <Box {...CONVERTER_CONTAINER_SX}>
+        <CurrencyInput
+          value={currencies[CurrencySide.Left].value}
+          onChange={(value) =>
+            handleValueChange(CurrencySide.Left, value, currenciesRate)
+          }
+          ticker={currencies[CurrencySide.Left].ticker}
+          setTicker={(ticker) => handleTickerChange(CurrencySide.Left, ticker)}
+          isLoading={isRefreshing}
+        />
 
-      <Box display="flex" flexDirection="row" gap="0.25rem">
-        <ArrowLeftIcon />
-        <ArrowRightIcon />
+        <Box display="flex" flexDirection="row" gap="0.25rem">
+          <ArrowLeftIcon />
+          <ArrowRightIcon />
+        </Box>
+
+        <CurrencyInput
+          value={currencies[CurrencySide.Right].value}
+          onChange={(value) =>
+            handleValueChange(CurrencySide.Right, value, currenciesRate)
+          }
+          ticker={currencies[CurrencySide.Right].ticker}
+          setTicker={(ticker) => handleTickerChange(CurrencySide.Right, ticker)}
+          isLoading={isRefreshing}
+        />
+
+        <Button
+          disabled={isRefreshing}
+          onClick={handleRefresh}
+          colorScheme="gray"
+          variant="outline"
+          cursor={isRefreshing ? 'not-allowed' : 'pointer'}
+        >
+          Обновить
+        </Button>
       </Box>
 
-      <CurrencyInput
-        value={currencies[CurrencySide.Right].value}
-        onChange={(value) => handleValueChange(CurrencySide.Right, value)}
-        ticker={currencies[CurrencySide.Right].ticker}
-        setTicker={(ticker) => handleTickerChange(CurrencySide.Right, ticker)}
-      />
-    </Box>
+      {error && (
+        <Alert status="error" borderRadius="md">
+          <AlertIcon />
+          <AlertTitle>Произошла ошибка</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+    </Flex>
   );
 };

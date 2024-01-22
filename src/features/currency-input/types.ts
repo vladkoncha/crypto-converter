@@ -5,4 +5,5 @@ export interface CurrencyInputProps {
   onChange: (value: string) => void;
   ticker: Ticker;
   setTicker: (ticker: Ticker) => void;
+  isLoading: boolean;
 }

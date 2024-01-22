@@ -9,11 +9,16 @@ export const CurrencyInput = ({
   onChange,
   ticker,
   setTicker,
+  isLoading,
 }: CurrencyInputProps) => {
   return (
     <Box display="flex" flexDirection="row" justifyContent="center">
-      <NumberInput value={value} onChange={onChange} />
-      <CryptoSelect ticker={ticker} setTicker={setTicker} />
+      <NumberInput isLoading={isLoading} value={value} onChange={onChange} />
+      <CryptoSelect
+        isLoading={isLoading}
+        ticker={ticker}
+        setTicker={setTicker}
+      />
     </Box>
   );
 };
