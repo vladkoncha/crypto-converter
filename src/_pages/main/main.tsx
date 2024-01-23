@@ -8,7 +8,7 @@ export const Main = async () => {
 
   return (
     <Box
-      height="100vh"
+      minHeight="100vh"
       display="flex"
       flexDirection="column"
       alignItems="center"
