@@ -9,6 +9,7 @@ import {
   Box,
   Flex,
   IconButton,
+  Text,
   useMediaQuery,
 } from '@chakra-ui/react';
 import { useState } from 'react';
@@ -161,49 +162,71 @@ export const Converter = ({ initialRates }: ConverterProps) => {
 
   return (
     <Flex direction="column" justify="center" align="center">
-      <Box {...layoutSx}>
-        <CurrencyInput
-          value={currencies[CurrencySide.Left].value}
-          onChange={(value) =>
-            handleValueChange(CurrencySide.Left, value, currenciesRate)
-          }
-          ticker={currencies[CurrencySide.Left].ticker}
-          setTicker={(ticker) => handleTickerChange(CurrencySide.Left, ticker)}
-          isLoading={isRefreshing}
-          percentChange={
-            currenciesRate[currencies[CurrencySide.Left].ticker].percentChange
-          }
-        />
-        <Flex
-          direction="row"
-          gap="0.25rem"
-          marginTop={isLargerThan900 ? '1.5rem' : '0'}
-        >
-          <ArrowLeftIcon />
-          <ArrowRightIcon />
-        </Flex>
-        <CurrencyInput
-          value={currencies[CurrencySide.Right].value}
-          onChange={(value) =>
-            handleValueChange(CurrencySide.Right, value, currenciesRate)
-          }
-          ticker={currencies[CurrencySide.Right].ticker}
-          setTicker={(ticker) => handleTickerChange(CurrencySide.Right, ticker)}
-          isLoading={isRefreshing}
-          percentChange={
-            currenciesRate[currencies[CurrencySide.Right].ticker].percentChange
-          }
-        />
-        <IconButton
-          disabled={isRefreshing}
-          onClick={handleRefresh}
-          colorScheme="gray"
-          variant="outline"
-          cursor={isRefreshing ? 'not-allowed' : 'pointer'}
-          aria-label="Обновить"
-          icon={<RepeatIcon />}
-        />
-      </Box>
+      <Flex
+        direction="column"
+        padding="2rem"
+        borderRadius="md"
+        backgroundColor="white"
+      >
+        <Box {...layoutSx}>
+          <CurrencyInput
+            value={currencies[CurrencySide.Left].value}
+            onChange={(value) =>
+              handleValueChange(CurrencySide.Left, value, currenciesRate)
+            }
+            ticker={currencies[CurrencySide.Left].ticker}
+            setTicker={(ticker) =>
+              handleTickerChange(CurrencySide.Left, ticker)
+            }
+            isLoading={isRefreshing}
+            percentChange={
+              currenciesRate[currencies[CurrencySide.Left].ticker].percentChange
+            }
+          />
+          <Flex
+            direction="row"
+            gap="0.25rem"
+            marginTop={isLargerThan900 ? '1.5rem' : '0'}
+          >
+            <ArrowLeftIcon />
+            <ArrowRightIcon />
+          </Flex>
+          <CurrencyInput
+            value={currencies[CurrencySide.Right].value}
+            onChange={(value) =>
+              handleValueChange(CurrencySide.Right, value, currenciesRate)
+            }
+            ticker={currencies[CurrencySide.Right].ticker}
+            setTicker={(ticker) =>
+              handleTickerChange(CurrencySide.Right, ticker)
+            }
+            isLoading={isRefreshing}
+            percentChange={
+              currenciesRate[currencies[CurrencySide.Right].ticker]
+                .percentChange
+            }
+          />
+          <IconButton
+            disabled={isRefreshing}
+            onClick={handleRefresh}
+            colorScheme="gray"
+            variant="outline"
+            cursor={isRefreshing ? 'not-allowed' : 'pointer'}
+            aria-label="Обновить"
+            icon={<RepeatIcon />}
+          />
+        </Box>
+
+        <Text size="md" marginTop="0.5rem">
+          1 {currencies[CurrencySide.Left].ticker.toUpperCase()} ={' '}
+          {convertCurrency(
+            1,
+            currenciesRate[currencies[CurrencySide.Left].ticker].price,
+            currenciesRate[currencies[CurrencySide.Right].ticker].price
+          )}{' '}
+          {currencies[CurrencySide.Right].ticker.toUpperCase()}
+        </Text>
+      </Flex>
 
       {error && (
         <Alert status="error" borderRadius="md">
