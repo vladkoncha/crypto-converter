@@ -10,8 +10,8 @@ import {
   MenuList,
 } from '@chakra-ui/react';
 
-import { IconButton } from '@/src/shared/icon-button';
 import { Ticker } from '@/src/shared/models';
+import { IconButton } from '@/src/shared/ui/icon-button';
 
 import { MENU_WIDTH, OPTIONS } from './constants';
 import { CryptoSelectProps } from './type';

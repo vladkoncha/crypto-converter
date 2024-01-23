@@ -13,9 +13,7 @@ export async function fetchCurrencyQuote(): Promise<CurrenciesRate> {
   const data: ResponseData = await response.json();
 
   if (!data?.status || !data?.data || data.status.error_code !== 0) {
-    throw new Error(
-      'Ошибка получения данных: ' + data?.status?.error_message ?? ''
-    );
+    throw new Error('An error occured: ' + data?.status?.error_message ?? '');
   }
 
   return {

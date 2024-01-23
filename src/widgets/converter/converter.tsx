@@ -1,26 +1,18 @@
 'use client';
 
 import { ArrowLeftIcon, ArrowRightIcon, RepeatIcon } from '@chakra-ui/icons';
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
-  Box,
-  Flex,
-  IconButton,
-  Text,
-  useMediaQuery,
-} from '@chakra-ui/react';
+import { Box, Flex, IconButton, useMediaQuery } from '@chakra-ui/react';
 import { useState } from 'react';
 
 import { CurrencyInput } from '@/src/features/currency-input';
 import { fetchCurrencyQuote } from '@/src/features/fetch-currency-quote';
 import { TICKERS } from '@/src/shared/constants';
 import { CurrenciesRate, Ticker } from '@/src/shared/models';
+import { ErrorMessage } from '@/src/shared/ui/error-message';
 
 import { CONVERTER_CONTAINER_MOBILE_SX, CONVERTER_CONTAINER_SX } from './sx';
 import { ConverterProps, CurrenciesState, CurrencySide } from './types';
+import { ConversionRateLabel } from './ui/conversion-rate';
 import { convertCurrency } from './utils/convert-currency';
 
 const initialCurrencyState: CurrenciesState = {
@@ -119,7 +111,7 @@ export const Converter = ({ initialRates }: ConverterProps) => {
     });
   };
 
-  const handleTickerChange = async (side: CurrencySide, ticker: Ticker) => {
+  const handleTickerChange = (side: CurrencySide, ticker: Ticker) => {
     const numValue = parseFloat(currencies[CurrencySide.Left].value);
 
     if (side === CurrencySide.Left) {
@@ -183,6 +175,7 @@ export const Converter = ({ initialRates }: ConverterProps) => {
               currenciesRate[currencies[CurrencySide.Left].ticker].percentChange
             }
           />
+
           <Flex
             direction="row"
             gap="0.25rem"
@@ -191,6 +184,7 @@ export const Converter = ({ initialRates }: ConverterProps) => {
             <ArrowLeftIcon />
             <ArrowRightIcon />
           </Flex>
+
           <CurrencyInput
             value={currencies[CurrencySide.Right].value}
             onChange={(value) =>
@@ -206,6 +200,7 @@ export const Converter = ({ initialRates }: ConverterProps) => {
                 .percentChange
             }
           />
+
           <IconButton
             disabled={isRefreshing}
             onClick={handleRefresh}
@@ -217,24 +212,18 @@ export const Converter = ({ initialRates }: ConverterProps) => {
           />
         </Box>
 
-        <Text size="md" marginTop="0.5rem">
-          1 {currencies[CurrencySide.Left].ticker.toUpperCase()} ={' '}
-          {convertCurrency(
+        <ConversionRateLabel
+          leftTicker={currencies[CurrencySide.Left].ticker.toUpperCase()}
+          rightTicker={currencies[CurrencySide.Right].ticker.toUpperCase()}
+          conversionRate={convertCurrency(
             1,
             currenciesRate[currencies[CurrencySide.Left].ticker].price,
             currenciesRate[currencies[CurrencySide.Right].ticker].price
-          )}{' '}
-          {currencies[CurrencySide.Right].ticker.toUpperCase()}
-        </Text>
+          )}
+        />
       </Flex>
 
-      {error && (
-        <Alert status="error" borderRadius="md">
-          <AlertIcon />
-          <AlertTitle>Произошла ошибка</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+      {error && <ErrorMessage message={error} />}
     </Flex>
   );
 };
